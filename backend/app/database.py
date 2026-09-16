@@ -1,7 +1,14 @@
-﻿from sqlalchemy import create_engine
+﻿import os
+
+from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = "sqlite:///./seatflow.db"
+
+if os.getenv("SEATFLOW_TESTING") == "1":
+    DATABASE_URL = "sqlite:///./seatflow_test.db"
+else:
+    DATABASE_URL = "sqlite:///./seatflow.db"
+
 
 engine = create_engine(
     DATABASE_URL,

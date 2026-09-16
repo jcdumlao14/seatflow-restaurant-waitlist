@@ -1,4 +1,4 @@
-import {
+﻿import {
   useEffect,
   useState,
 } from "react";
@@ -354,8 +354,8 @@ function AuthScreen({
           </form>
 
           <p className="auth-footer">
-            JWT authentication Â· Argon2 password
-            hashing Â· Multi-tenant architecture
+            JWT authentication Ã‚Â· Argon2 password
+            hashing Ã‚Â· Multi-tenant architecture
           </p>
         </div>
       </section>
@@ -790,7 +790,7 @@ function Dashboard({
             ) : activeEntries.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
-                  âœ“
+                  Ã¢Å“â€œ
                 </div>
 
                 <strong>
@@ -945,7 +945,7 @@ function QueueRow({
         </strong>
 
         <span>
-          {entry.phone} Â· {entry.party_size} guest
+          {entry.phone} - {entry.party_size} guest
           {entry.party_size !== 1
             ? "s"
             : ""}
@@ -1035,3 +1035,5 @@ function StatusBadge({
 
 
 export default App;
+
+

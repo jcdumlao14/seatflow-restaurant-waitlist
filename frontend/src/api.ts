@@ -2,6 +2,7 @@
   import.meta.env.VITE_API_BASE_URL ||
   "http://127.0.0.1:8000";
 
+
 export class ApiError extends Error {
   status: number;
   details: unknown;
@@ -17,6 +18,7 @@ export class ApiError extends Error {
     this.details = details;
   }
 }
+
 
 function formatErrorDetail(detail: unknown): string {
   if (typeof detail === "string") {
@@ -34,7 +36,7 @@ function formatErrorDetail(detail: unknown): string {
           const obj = item as Record<string, unknown>;
 
           const location = Array.isArray(obj.loc)
-            ? obj.loc.join(" → ")
+            ? obj.loc.join(" -> ")
             : "";
 
           const message =
@@ -67,6 +69,7 @@ function formatErrorDetail(detail: unknown): string {
   return "Request failed";
 }
 
+
 function getErrorMessage(data: unknown): string {
   if (data && typeof data === "object") {
     const obj = data as Record<string, unknown>;
@@ -87,6 +90,7 @@ function getErrorMessage(data: unknown): string {
   return formatErrorDetail(data);
 }
 
+
 async function request<T>(
   path: string,
   options: RequestInit = {},
@@ -94,19 +98,34 @@ async function request<T>(
   const token = localStorage.getItem("seatflow_token");
 
   const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
+
+  if (
+    options.body &&
+    !headers.has("Content-Type")
+  ) {
+    headers.set(
+      "Content-Type",
+      "application/json",
+    );
+  }
 
   if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+    headers.set(
+      "Authorization",
+      `Bearer ${token}`,
+    );
   }
 
   let response: Response;
 
   try {
-    response = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers,
-    });
+    response = await fetch(
+      `${API_BASE}${path}`,
+      {
+        ...options,
+        headers,
+      },
+    );
   } catch {
     throw new ApiError(
       `Cannot connect to SeatFlow API at ${API_BASE}. Make sure FastAPI is running.`,
@@ -119,7 +138,11 @@ async function request<T>(
 
   let data: unknown = null;
 
-  if (contentType.includes("application/json")) {
+  if (
+    contentType.includes(
+      "application/json",
+    )
+  ) {
     try {
       data = await response.json();
     } catch {
@@ -144,6 +167,11 @@ async function request<T>(
   return data as T;
 }
 
+
+// ============================================================
+// TYPES
+// ============================================================
+
 export interface User {
   id: number;
   restaurant_id: number;
@@ -152,11 +180,13 @@ export interface User {
   is_active: boolean;
 }
 
+
 export interface AuthResponse {
   access_token: string;
   token_type: string;
   user: User;
 }
+
 
 export interface WaitlistEntry {
   id: number;
@@ -169,6 +199,7 @@ export interface WaitlistEntry {
   created_at: string;
 }
 
+
 export interface Statistics {
   total: number;
   waiting: number;
@@ -178,29 +209,45 @@ export interface Statistics {
   no_show: number;
 }
 
-/* =========================
-   TOKEN HELPERS
-========================= */
 
-export function setToken(token: string): void {
-  localStorage.setItem("seatflow_token", token);
+// ============================================================
+// TOKEN HELPERS
+// ============================================================
+
+export function setToken(
+  token: string,
+): void {
+  localStorage.setItem(
+    "seatflow_token",
+    token,
+  );
 }
 
-export function saveToken(token: string): void {
+
+export function saveToken(
+  token: string,
+): void {
   setToken(token);
 }
 
+
 export function getToken(): string | null {
-  return localStorage.getItem("seatflow_token");
+  return localStorage.getItem(
+    "seatflow_token",
+  );
 }
+
 
 export function clearToken(): void {
-  localStorage.removeItem("seatflow_token");
+  localStorage.removeItem(
+    "seatflow_token",
+  );
 }
 
-/* =========================
-   AUTHENTICATION
-========================= */
+
+// ============================================================
+// AUTHENTICATION
+// ============================================================
 
 export async function login(
   email: string,
@@ -217,6 +264,7 @@ export async function login(
     },
   );
 }
+
 
 export async function register(
   restaurantName: string,
@@ -236,19 +284,26 @@ export async function register(
   );
 }
 
+
 export async function getMe(): Promise<User> {
-  return request<User>("/api/auth/me");
+  return request<User>(
+    "/api/auth/me",
+  );
 }
 
-/* =========================
-   WAITLIST
-========================= */
 
-export async function getWaitlist(): Promise<WaitlistEntry[]> {
+// ============================================================
+// WAITLIST
+// ============================================================
+
+export async function getWaitlist(): Promise<
+  WaitlistEntry[]
+> {
   return request<WaitlistEntry[]>(
     "/api/waitlist",
   );
 }
+
 
 export async function addParty(
   customerName: string,
@@ -268,7 +323,7 @@ export async function addParty(
   );
 }
 
-/* Compatibility alias */
+
 export async function addWaitlistEntry(
   payload: {
     customer_name: string;
@@ -283,7 +338,10 @@ export async function addWaitlistEntry(
   );
 }
 
-export async function callNext(): Promise<WaitlistEntry> {
+
+export async function callNext(): Promise<
+  WaitlistEntry
+> {
   return request<WaitlistEntry>(
     "/api/waitlist/call-next",
     {
@@ -291,6 +349,7 @@ export async function callNext(): Promise<WaitlistEntry> {
     },
   );
 }
+
 
 export async function seatParty(
   entryId: number,
@@ -303,6 +362,7 @@ export async function seatParty(
   );
 }
 
+
 export async function cancelParty(
   entryId: number,
 ): Promise<WaitlistEntry> {
@@ -313,6 +373,7 @@ export async function cancelParty(
     },
   );
 }
+
 
 export async function noShowParty(
   entryId: number,
@@ -325,7 +386,10 @@ export async function noShowParty(
   );
 }
 
-export async function getStatistics(): Promise<Statistics> {
+
+export async function getStatistics(): Promise<
+  Statistics
+> {
   return request<Statistics>(
     "/api/waitlist/statistics/summary",
   );

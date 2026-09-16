@@ -882,3 +882,78 @@ button:disabled {
     width: 100%;
   }
 }
+
+/* =========================================================
+   SEATFLOW QUEUE ACTION BUTTON FIX
+   ========================================================= */
+
+.queue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.queue-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+  min-width: 72px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.queue-actions .success {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.queue-actions .muted {
+  color: #374151;
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.queue-actions .danger {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.queue-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.queue-actions button:active {
+  transform: translateY(0);
+}
+
+.queue-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .queue-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .queue-actions button {
+    width: 100%;
+  }
+}
