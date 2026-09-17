@@ -1,4 +1,4 @@
-﻿const API_BASE =
+const API_BASE =
   import.meta.env.VITE_API_BASE_URL ||
   "http://127.0.0.1:8000";
 
@@ -393,4 +393,24 @@ export async function getStatistics(): Promise<
   return request<Statistics>(
     "/api/waitlist/statistics/summary",
   );
+}
+
+
+export function getWebSocketUrl(): string {
+  const baseUrl =
+    import.meta.env.VITE_API_BASE_URL ||
+    "http://127.0.0.1:8000";
+
+  const wsBase = baseUrl
+    .replace(/^http:\/\//, "ws://")
+    .replace(/^https:\/\//, "wss://")
+    .replace(/\/+$/, "");
+
+  const token = getToken();
+
+  if (!token) {
+    return `${wsBase}/ws/waitlist`;
+  }
+
+  return `${wsBase}/ws/waitlist?token=${encodeURIComponent(token)}`;
 }

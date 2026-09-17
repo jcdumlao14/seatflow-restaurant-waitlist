@@ -8,6 +8,7 @@ from app.models import Restaurant, User, WaitlistEntry  # noqa: F401
 from app.api.auth import router as auth_router
 from app.api.users import router as users_router
 from app.api.waitlist import router as waitlist_router
+from app.api.websocket import router as websocket_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -37,6 +38,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(waitlist_router)
+app.include_router(websocket_router)
 
 
 @app.get("/health")

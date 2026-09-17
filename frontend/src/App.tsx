@@ -1,4 +1,4 @@
-﻿import {
+import {
   useEffect,
   useState,
 } from "react";
@@ -11,6 +11,7 @@ import {
   getMe,
   getStatistics,
   getToken,
+  getWebSocketUrl,
   getWaitlist,
   login,
   noShowParty,
@@ -354,8 +355,7 @@ function AuthScreen({
           </form>
 
           <p className="auth-footer">
-            JWT authentication Ã‚Â· Argon2 password
-            hashing Ã‚Â· Multi-tenant architecture
+            JWT authentication - Argon2 password hashing - Multi-tenant architecture
           </p>
         </div>
       </section>
@@ -436,6 +436,70 @@ function Dashboard({
 
   useEffect(() => {
     refresh();
+  }, []);
+
+  useEffect(() => {
+    if (!getToken()) {
+      return;
+    }
+
+    let socket: WebSocket | null = null;
+    let reconnectTimer: number | null = null;
+    let stopped = false;
+
+    const connect = () => {
+      if (stopped || !getToken()) {
+        return;
+      }
+
+      socket = new WebSocket(
+        getWebSocketUrl(),
+      );
+
+      socket.onmessage = (event) => {
+        try {
+          const message = JSON.parse(
+            event.data,
+          );
+
+          if (
+            message.type ===
+            "waitlist.updated"
+          ) {
+            void refresh();
+          }
+        } catch {
+          // Ignore malformed WebSocket messages.
+        }
+      };
+
+      socket.onclose = () => {
+        if (!stopped) {
+          reconnectTimer = window.setTimeout(
+            connect,
+            2000,
+          );
+        }
+      };
+
+      socket.onerror = () => {
+        socket?.close();
+      };
+    };
+
+    connect();
+
+    return () => {
+      stopped = true;
+
+      if (reconnectTimer !== null) {
+        window.clearTimeout(
+          reconnectTimer,
+        );
+      }
+
+      socket?.close();
+    };
   }, []);
 
   function notify(message: string) {
@@ -790,7 +854,7 @@ function Dashboard({
             ) : activeEntries.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
-                  Ã¢Å“â€œ
+                  OK
                 </div>
 
                 <strong>
@@ -1035,5 +1099,3 @@ function StatusBadge({
 
 
 export default App;
-
-

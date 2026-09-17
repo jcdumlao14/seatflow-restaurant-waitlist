@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.auth_dependencies import get_current_user
@@ -8,6 +8,7 @@ from app.schemas.waitlist import (
     WaitlistCreate,
     WaitlistResponse,
 )
+from app.services.websocket import broadcast_waitlist_update
 from app.services.waitlist import (
     CANCELLED,
     NO_SHOW,
@@ -45,12 +46,12 @@ def get_waitlist_entries(
     response_model=WaitlistResponse,
     status_code=201,
 )
-def add_to_waitlist(
+async def add_to_waitlist(
     payload: WaitlistCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return create_waitlist_entry(
+    entry = create_waitlist_entry(
         db,
         current_user.restaurant_id,
         payload.customer_name,
@@ -58,12 +59,20 @@ def add_to_waitlist(
         payload.party_size,
     )
 
+    await broadcast_waitlist_update(
+        current_user.restaurant_id,
+        "created",
+        entry.id,
+    )
+
+    return entry
+
 
 @router.post(
     "/call-next",
     response_model=WaitlistResponse,
 )
-def call_next_party(
+async def call_next_party(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -78,6 +87,12 @@ def call_next_party(
             detail="No customers are currently waiting",
         )
 
+    await broadcast_waitlist_update(
+        current_user.restaurant_id,
+        "called",
+        entry.id,
+    )
+
     return entry
 
 
@@ -85,7 +100,7 @@ def call_next_party(
     "/{entry_id}/status",
     response_model=WaitlistResponse,
 )
-def update_status(
+async def update_status(
     entry_id: int,
     status: str,
     db: Session = Depends(get_db),
@@ -111,6 +126,12 @@ def update_status(
             detail="Waitlist entry not found",
         )
 
+    await broadcast_waitlist_update(
+        current_user.restaurant_id,
+        "status_changed",
+        entry.id,
+    )
+
     return entry
 
 
@@ -118,7 +139,7 @@ def update_status(
     "/{entry_id}/seat",
     response_model=WaitlistResponse,
 )
-def seat_party(
+async def seat_party(
     entry_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -136,6 +157,12 @@ def seat_party(
             detail="Waitlist entry not found",
         )
 
+    await broadcast_waitlist_update(
+        current_user.restaurant_id,
+        "seated",
+        entry.id,
+    )
+
     return entry
 
 
@@ -143,7 +170,7 @@ def seat_party(
     "/{entry_id}/cancel",
     response_model=WaitlistResponse,
 )
-def cancel_party(
+async def cancel_party(
     entry_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -161,6 +188,12 @@ def cancel_party(
             detail="Waitlist entry not found",
         )
 
+    await broadcast_waitlist_update(
+        current_user.restaurant_id,
+        "cancelled",
+        entry.id,
+    )
+
     return entry
 
 
@@ -168,7 +201,7 @@ def cancel_party(
     "/{entry_id}/no-show",
     response_model=WaitlistResponse,
 )
-def no_show_party(
+async def no_show_party(
     entry_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -185,6 +218,12 @@ def no_show_party(
             status_code=404,
             detail="Waitlist entry not found",
         )
+
+    await broadcast_waitlist_update(
+        current_user.restaurant_id,
+        "no_show",
+        entry.id,
+    )
 
     return entry
 
