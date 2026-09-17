@@ -1,18 +1,10 @@
-from fastapi import FastAPI
-
-from app.database import Base, engine
-
-# Register all SQLAlchemy models.
-from app.models import Restaurant, User, WaitlistEntry  # noqa: F401
+﻿from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
 from app.api.users import router as users_router
 from app.api.waitlist import router as waitlist_router
 from app.api.websocket import router as websocket_router
-from fastapi.middleware.cors import CORSMiddleware
-
-
-Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
@@ -35,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(waitlist_router)
