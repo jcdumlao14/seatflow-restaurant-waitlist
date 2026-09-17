@@ -1,5 +1,4 @@
-﻿import os
-import re
+﻿import re
 from datetime import datetime, timedelta, timezone
 
 import jwt
@@ -10,14 +9,15 @@ from sqlalchemy.orm import Session
 from app.models.restaurant import Restaurant
 from app.models.user import User
 
-
-SECRET_KEY = os.getenv(
-    "SEATFLOW_SECRET_KEY",
-    "seatflow-development-secret-change-in-production",
+from app.config import (
+    JWT_ALGORITHM,
+    JWT_EXPIRE_MINUTES,
+    SECRET_KEY,
 )
 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+ALGORITHM = JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = JWT_EXPIRE_MINUTES
+
 
 password_hash = PasswordHash.recommended()
 
