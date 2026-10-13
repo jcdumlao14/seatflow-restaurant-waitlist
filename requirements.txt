@@ -9,3 +9,6 @@ pwdlib[argon2]
 PyJWT
 email-validator
 alembic
+
+psycopg[binary]
+PyYAML

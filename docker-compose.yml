@@ -1,0 +1,52 @@
+﻿services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: seatflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: seatflow
+      POSTGRES_USER: seatflow
+      POSTGRES_PASSWORD: seatflow_dev_password
+    volumes:
+      - seatflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seatflow -d seatflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: seatflow-backend
+    restart: unless-stopped
+    environment:
+      SEATFLOW_ENV: development
+      SEATFLOW_DATABASE_URL: postgresql+psycopg://seatflow:seatflow_dev_password@postgres:5432/seatflow
+      SEATFLOW_SECRET_KEY: seatflow-local-docker-secret-change-this-32-chars-min
+      SEATFLOW_JWT_ALGORITHM: HS256
+      SEATFLOW_JWT_EXPIRE_MINUTES: 1440
+      SEATFLOW_CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8002
+    container_name: seatflow-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  seatflow_postgres_data:
