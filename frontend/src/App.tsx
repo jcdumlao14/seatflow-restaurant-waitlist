@@ -48,6 +48,11 @@ function App() {
   const [loading, setLoading] =
     useState(() => Boolean(getToken()));
 
+  const handleLogout = useCallback(() => {
+    clearToken();
+    setUser(null);
+  }, []);
+
   useEffect(() => {
     const token = getToken();
 
@@ -96,10 +101,7 @@ function App() {
   return (
     <Dashboard
       user={user}
-      onLogout={() => {
-        clearToken();
-        setUser(null);
-      }}
+      onLogout={handleLogout}
     />
   );
 }
