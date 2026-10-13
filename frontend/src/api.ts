@@ -136,7 +136,7 @@ async function request<T>(
   const contentType =
     response.headers.get("content-type") || "";
 
-  let data: unknown = null;
+  let data: unknown;
 
   if (
     contentType.includes(

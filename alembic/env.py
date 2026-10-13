@@ -1,4 +1,4 @@
-﻿from logging.config import fileConfig
+from logging.config import fileConfig
 from pathlib import Path
 import sys
 
@@ -18,6 +18,7 @@ if str(BACKEND_DIR) not in sys.path:
 
 
 from app.database import Base
+from app.config import DATABASE_URL
 from app.models import Restaurant, User, WaitlistEntry  # noqa: F401
 
 
@@ -27,6 +28,14 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+
+# Keep Alembic migrations aligned with the application's database configuration.
+# This ensures Docker/production migrations use PostgreSQL when
+# SEATFLOW_DATABASE_URL is configured for PostgreSQL.
+config.set_main_option(
+    "sqlalchemy.url",
+    DATABASE_URL.replace("%", "%%"),
+)
 
 
 def run_migrations_offline() -> None:

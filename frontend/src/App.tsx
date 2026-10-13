@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -45,13 +46,12 @@ function App() {
     useState<User | null>(null);
 
   const [loading, setLoading] =
-    useState(true);
+    useState(() => Boolean(getToken()));
 
   useEffect(() => {
     const token = getToken();
 
     if (!token) {
-      setLoading(false);
       return;
     }
 
@@ -135,7 +135,7 @@ function AuthScreen({
   ) {
     event.preventDefault();
 
-    setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+    setError("");
     setLoading(true);
 
     try {
@@ -177,8 +177,8 @@ function AuthScreen({
             </span>
 
             <h1>
-              Turn waiting time into a better
-              <span>
+              Turn waiting time into a better{" "}
+            <span>
                 guest experience.
               </span>
             </h1>
@@ -260,7 +260,7 @@ function AuthScreen({
               type="button"
               onClick={() => {
                 setMode("login");
-                setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+                setError("");
               }}
             >
               Sign in
@@ -275,7 +275,7 @@ function AuthScreen({
               type="button"
               onClick={() => {
                 setMode("register");
-                setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+                setError("");
               }}
             >
               Register
@@ -404,7 +404,7 @@ function Dashboard({
   const [success, setSuccess] =
     useState("");
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     try {
       const [queue, statistics] =
         await Promise.all([
@@ -414,7 +414,7 @@ function Dashboard({
 
       setEntries(queue);
       setStats(statistics);
-      setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+      setError("");
     } catch (err) {
       if (
         err instanceof ApiError &&
@@ -432,11 +432,15 @@ function Dashboard({
     } finally {
       setLoading(false);
     }
-  }
+  }, [onLogout]);
 
   useEffect(() => {
-    refresh();
-  }, []);
+    const timer = window.setTimeout(() => {
+      void refresh();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [refresh]);
 
   useEffect(() => {
     if (!getToken()) {
@@ -500,11 +504,11 @@ function Dashboard({
 
       socket?.close();
     };
-  }, []);
+  }, [refresh]);
 
   function notify(message: string) {
     setSuccess(message);
-    setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+    setError("");
 
     window.setTimeout(() => {
       setSuccess("");
@@ -516,7 +520,7 @@ function Dashboard({
   ) {
     event.preventDefault();
 
-    setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+    setError("");
     setSuccess("");
     setSubmitting(true);
 
@@ -548,7 +552,7 @@ function Dashboard({
   }
 
   async function handleCallNext() {
-    setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+    setError("");
 
     try {
       const entry = await callNext();
@@ -574,7 +578,7 @@ function Dashboard({
       | "cancel"
       | "no-show",
   ) {
-    setError(typeof "" === "string" ? "" : JSON.stringify("", null, 2));
+    setError("");
 
     try {
       if (action === "seat") {
@@ -718,7 +722,7 @@ function Dashboard({
           />
 
           <StatCard
-            label="Completed"
+            label="Resolved"
             value={
               stats.seated +
               stats.cancelled +
