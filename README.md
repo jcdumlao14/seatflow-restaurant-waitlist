@@ -401,3 +401,72 @@ These are potential improvements, not claims that the features are already imple
 Refer to the repository's license file for the applicable licensing terms. If no license file exists, confirm the intended license before distributing the project.
 
 Thanks to the maintainers, contributors, and tools that support the development and testing of SeatFlow.
+
+## MCP Server and Agent Extension Pack
+
+SeatFlow includes a local, read-only Model Context Protocol (MCP) server and an agent extension pack to support repository review, approved documentation access, and project-specific guardrails.
+
+### MCP Tools
+
+The local MCP server exposes two tools:
+
+- `review_repository_structure` — checks selected repository structure and project configuration requirements, including required files, API paths, and Docker Compose services.
+- `read_approved_project_document` — reads documentation explicitly permitted by the server's allowlist.
+
+These tools support development and review. A successful structural review does not replace application tests, live API checks, or a complete security audit.
+
+### Security Boundaries
+
+The documentation-reading tool uses an explicit allowlist. It rejects unapproved documents, absolute paths, parent-directory traversal, missing files, and files exceeding the configured 200,000-byte limit.
+
+The MCP server is intended for local, read-only repository assistance. Its documented tools do not provide general-purpose file-writing, shell-execution, or database-mutation capabilities.
+
+### Agent Extension Pack
+
+The extension pack includes:
+
+- A repository review capability and tests.
+- Agent guardrails and tests.
+- A custom agent instruction file.
+- MCP server implementation, documentation, and smoke tests.
+- Permission and security documentation.
+
+See `docs/agent-extension-pack.md` for the extension-pack overview, `docs/permissions.md` for permission boundaries, and `mcp-server/README.md` for MCP-specific instructions.
+
+### Local MCP Setup
+
+The MCP server uses a dedicated Python virtual environment and the MCP Python SDK. In the development environment, the VS Code user MCP configuration is located at:
+
+`%APPDATA%\Code\User\mcp.json`
+
+The configuration registers the local `seatflow` server alongside the existing MCP servers. Keep existing server entries intact when updating the configuration. The local server runs through the dedicated Python executable and `mcp-server/server.py`.
+
+After changing the MCP configuration, restart or reload the relevant VS Code MCP session and confirm that the `seatflow` server starts and discovers its two tools.
+
+### Validation
+
+The completed development checks included:
+
+- MCP core unit tests: 6 passed.
+- Repository review capability: 3 tests passed.
+- Agent guardrail tests: 4 passed.
+- MCP smoke test: passed.
+- Repository structure review: 19 checks passed, with no failures or errors.
+- Full backend test suite: 47 passed.
+- Frontend lint and production build: passed.
+- Docker Compose configuration validation: passed.
+- HTTP smoke checks: `/health` and `/openapi.json` on port `8002`, and the frontend on port `8080`, returned HTTP 200.
+
+These are recorded development-validation results, not a claim that every possible security or production scenario has been tested.
+
+### Relevant Files
+
+- `mcp-server/server.py`
+- `mcp-server/seatflow_mcp_core.py`
+- `mcp-server/test_seatflow_mcp_core.py`
+- `mcp-server/smoke_test_mcp.py`
+- `agent-capabilities/`
+- `agent-hooks/`
+- `custom-agent/AGENT.md`
+- `docs/agent-extension-pack.md`
+- `docs/permissions.md`
