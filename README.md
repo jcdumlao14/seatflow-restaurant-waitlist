@@ -64,15 +64,18 @@ Intended users include restaurant owners and staff who manage guest waitlists.
 
 ## 4. Architecture
 
-SeatFlow uses a frontend, backend API, and relational database.
-
-- **Frontend:** React, TypeScript, and Vite.
-- **Backend:** FastAPI and Python.
-- **Database:** PostgreSQL.
-- **Containerization:** Docker and Docker Compose.
-- **API documentation:** OpenAPI and Swagger UI.
-
-The frontend communicates with the backend over HTTP. The backend validates requests and interacts with the database.
+```mermaid
+flowchart TD
+    U[Restaurant user] --> B[Browser]
+    B --> F[React + TypeScript frontend]
+    F -->|HTTP / JSON| A[FastAPI backend]
+    F <-->|Authenticated WebSocket| A
+    A --> D[(PostgreSQL 16)]
+    M[Alembic migrations] --> D
+    F -. Container .-> DF[Frontend Docker image]
+    A -. Container .-> DA[Backend Docker image]
+    D -. Container .-> DD[PostgreSQL container]
+```
 
 ## 5. Technology Stack
 
@@ -87,25 +90,54 @@ The frontend communicates with the backend over HTTP. The backend validates requ
 | Backend tests | pytest |
 | Database migrations | Alembic, where configured |
 
-## 6. Repository Structure
+## 6. Repository structure
 
-The repository contains the frontend, backend, container configuration, and project documentation.
+The following is the **target structure** for the project:
 
 ```text
 seatflow-restaurant-waitlist/
-├── backend/
-│   ├── tests/
-│   └── ...
-├── frontend/
-│   └── ...
-├── custom-agent/
-│   └── README.md
-├── docker-compose.yml
-├── README.md
-└── ...
+|-- README.md
+|-- product-spec.md
+|-- AGENTS.md
+|-- openapi.yaml
+|-- docker-compose.yml
+|-- frontend/
+|   |-- src/
+|   |   |-- App.tsx
+|   |   |-- api.ts
+|   |   `-- ...
+|   |-- package.json
+|   `-- Dockerfile
+|-- backend/
+|   |-- app/
+|   |   |-- api/
+|   |   `-- ...
+|   |-- tests/
+|   |-- requirements.txt
+|   |-- Dockerfile
+|   `-- ...
+|-- scripts/
+|-- docs/
+|-- security/
+|-- ops/
+|-- agent-capabilities/
+|-- agent-hooks/
+|-- mcp-server/
+|-- plugins/
+`-- .github/
+    `-- workflows/
 ```
 
-Some filenames and folders may differ as the project evolves. Refer to the current repository for the authoritative structure.
+This is a **target structure**, not a guarantee that every listed path already exists. The actual repository inventory should be checked as the project evolves; update this tree when files or directories are added, removed, or renamed.
+
+Important application files include:
+
+- `frontend/src/App.tsx`: main application and dashboard composition.
+- `frontend/src/api.ts`: centralized frontend API communication.
+- `backend/app/`: FastAPI application and backend modules.
+- `docker-compose.yml`: local multi-service configuration.
+- `openapi.yaml`: checked-in API contract, if present.
+- `product-spec.md` and `AGENTS.md`: requirements and AI-agent instructions, if present.
 
 ## 7. Prerequisites
 
