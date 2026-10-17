@@ -1,0 +1,44 @@
+﻿SeatFlow repository inventory
+Generated: 2026-10-17 13:27:43
+
+=== docs ===
+docs\agent-extension-pack.md
+docs\ai-usage-report.md
+docs\permissions.md
+docs\websocket-contract.md
+docs\final-project-pack\01-problem-and-solution.md
+docs\final-project-pack\02-product-spec-and-acceptance.md
+docs\final-project-pack\03-agent-team-spec.md
+docs\final-project-pack\04-context-management.md
+docs\final-project-pack\05-testing-and-quality.md
+docs\final-project-pack\06-container-deployment-rollback.md
+docs\final-project-pack\07-observability-and-alerting.md
+docs\final-project-pack\08-on-call-runbook.md
+docs\final-project-pack\09-final-submission-checklist.md
+
+=== .github\workflows ===
+.github\workflows\ci.yml
+
+=== backend\tests ===
+backend\tests\test_config.py
+backend\tests\test_phase2.py
+backend\tests\test_rbac.py
+backend\tests\test_waitlist.py
+backend\tests\test_websocket.py
+backend\tests\__pycache__\test_config.cpython-314-pytest-9.1.1.pyc
+backend\tests\__pycache__\test_phase2.cpython-314-pytest-9.1.1.pyc
+backend\tests\__pycache__\test_rbac.cpython-314-pytest-9.1.1.pyc
+backend\tests\__pycache__\test_waitlist.cpython-314-pytest-9.1.1.pyc
+backend\tests\__pycache__\test_websocket.cpython-314-pytest-9.1.1.pyc
+
+=== alembic\versions ===
+alembic\versions\6fd61589df5c_initial_schema.py
+alembic\versions\__pycache__\6fd61589df5c_initial_schema.cpython-314.pyc
+
+=== FRONTEND PACKAGE SCRIPTS ===
+
+
+dev     : vite
+build   : tsc -b && vite build
+lint    : eslint .
+preview : vite preview
